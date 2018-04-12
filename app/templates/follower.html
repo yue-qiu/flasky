@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+<table class="table table-hover followers">
+    <thead>
+    <tr>
+        <th>关注{% if current_user.id == user.id %}我{% else %}TA{% endif %}的人</th>
+        <th>关注时间</th>
+    </tr>
+    </thead>
+    {% for follow in follows %}
+    <tr>
+        <td>
+            <a href="{{ url_for('main.user', username = follow.follower.username) }}">
+                <img class="img-rounded" src="{{ follow.follower.gravatar(size=32) }}">
+                {{ follow.follower.username }}
+            </a>
+        </td>
+        <td>{{ moment(follow.timestamp).format('L') }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

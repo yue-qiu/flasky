@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
+
+{% block title %}搬砖圣地{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+{{ pagedown.include_pagedown() }}
+{% endblock %}
+
+{% block head %}
+    {{super()}}
+    <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}" type="text/css">
+{% endblock %}
+
+{% block page_content %}
+<h1 align="center">搬砖场</h1>
+<hr>
+<p>
+    搬砖是人类进步的阶梯。 <br>
+    <p align="right">-----高尔基</p>
+</p>
+<br>
+{% if current_user.is_authenticated %}
+<div>
+    {{ wtf.quick_form(form) }}
+</div>
+{% endif %}
+<table class="post-tab">
+    <ul class="nav nav-tabs">
+        <li{% if not show_followed %} class="active"{% endif %}><a href="{{ url_for('main.show_all') }}">所有</a></li>
+        {% if current_user.is_authenticated %}
+        <li{% if show_followed %} class="active"{% endif %}><a href="{{ url_for('main.show_followed') }}">我的关注</a></li>
+        {% endif %}
+    </ul>
+</table>
+<ul class="posts">
+    {% for post in posts %}
+    <li class="post">
+        <div class="post-thumbnail">
+            <a href="{{ url_for('main.user', username=post.author.username) }}">
+                <img class="img-rounded profile-thumbnail" src="{{ post.author.gravatar(size=40) }}">
+            </a>
+        </div>
+        <div class="post-content">
+            <div class="post-date">{{ moment(post.timestamp).fromNow() }}</div>
+            <div class="post-author"><a href="{{ url_for('main.user', username=post.author.username) }}">{{ post.author.username }}</a></div>
+            <div class="post-body">
+                {% if post.body_html %}
+                    {{ post.body_html | safe | truncate(100)}}
+                {% else %}
+                    {{ post.body }}
+                {% endif %}
+            </div>
+            <div class="post-footer">
+                <a href="{{ url_for('main.post',id=post.id) }}#comments">
+                    <span class="label label-info">
+                        {{ post.comments.count() }}评论
+                    </span>
+                </a>
+                {% if current_user == post.author %}
+                <a href="{{ url_for('main.edit',id=post.id) }}">
+                    <span class="label label-primary">
+                        编辑
+                    </span>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+{% if pagination %}
+<div class="pagination">
+    {{macros.pagination_widget(pagination,'.index')}}
+</div>
+{% endif %}
+{% endblock %}

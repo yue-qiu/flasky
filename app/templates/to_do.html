@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
+
+{% block head %}
+    {{super()}}
+    <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}" type="text/css">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+{{ pagedown.include_pagedown() }}
+{% endblock %}
+
+{% block page_content %}
+<h1 align="center">还有好多好多砖要搬呐</h1>
+<hr>
+{{ wtf.quick_form(form) }}
+<form action="{{ url_for('main.to_do_list',username=current_user.username)}}" method="post">
+    <div class="container">
+	<div class="row clearfix">
+		<div class="col-md-12 column">
+			<table class="table">
+				<thead>
+					<tr>
+						<th>
+							待办
+						</th>
+						<th>
+							记录时间
+						</th>
+						<th>
+							完成啦~
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+                {% for todo in todos %}
+					<tr class="warning">
+						<td>
+                            {% if todo.text_html %}
+                                {{ todo.text_html | safe}}
+                            {% else %}
+                                {{ todo.text }}
+                            {% endif %}
+						</td>
+						<td>
+							{{ moment(todo.timestamp).format('L') }}
+						</td>
+						<td>
+                            <input class="btn btn-info"
+               type="submit" formaction="{{ url_for('main.deleteToDo',username=current_user.username,id=todo.id) }}"
+               value="搬完啦!">
+						</td>
+					</tr>
+                {% endfor %}
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</form>
+
+{% if pagination %}
+    <div class="pagination">
+        {{ macros.pagination_widget(pagination,'.to_do_list',username=current_user.username)}}
+    </div>
+{% endif %}
+{% endblock %}
+
+
+
