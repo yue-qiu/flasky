@@ -5,7 +5,7 @@ from config import config
 from flask import Flask,render_template
 from flask_login import LoginManager
 from flask_pagedown import PageDown
-from 
+from flask_uploads import UploadSet,IMAGES,configure_uploads
 
 bootstrap = Bootstrap()
 db = SQLAlchemy()
@@ -14,6 +14,7 @@ login_manager = LoginManager()
 pagedown = PageDown()
 # 设置登录页面的端点
 login_manager.login_view = 'auth.login'
+photos = UploadSet('photos',IMAGES)
 
 def creat_app(config_name):
     app = Flask(__name__)
@@ -25,6 +26,7 @@ def creat_app(config_name):
     moment.init_app(app)
     login_manager.init_app(app)
     pagedown.init_app(app)
+    configure_uploads(app, photos)
 
     # 附加路由
     from .main import main as main_blueprint

@@ -9,63 +9,63 @@ from markdown import markdown
 import bleach
 
 
-# class Role(db.Model):
-#     __tablename__ = 'roles'
-#     id = db.Column(db.Integer, primary_key=True)
-#     name = db.Column(db.String(64), unique=True)
-#     # permissions的值是一个整数，表示位标识，各操作都表示一个位标识。
-#     permissions = db.Column(db.Integer)
-#     default = db.Column(db.Boolean,default=False,index=True)
-#     users = db.relationship('User', backref='role', lazy='dynamic')
-#
-#     @staticmethod
-#     def insert_roles():
-#         """
-#         通过权限组合，创建有不同权限的角色
-#         匿名：只能浏览。所以不用在数据库设置这个角色。
-#         User:正常权限，可评论，发文章，关注别人。一般用户默认是User
-#         Moderator：协管员，可评论，发文章，关注别人，管理他人评论。
-#         Administrator：管理员，拥有最高权限。
-#         :return:
-#         """
-#          roles = {
-#              'User' : (Permission.FOLLOW|
-#                        Permission.COMMENT|
-#                        Permission.WRITE_ARTICLES,True),
-#              'Moderator' : (Permission.FOLLOW|
-#                             Permission.COMMENT|
-#                             Permission.WRITE_ARTICLES|
-#                             Permission.MODERATE_COMMENTS,False),
-#              'Administrator' : (0xff,False)
-#          }
-#          for r in roles:
-#              role = Role.query.filter_by(name=r).first()
-#              if role is None:
-#                  role = Role(name=r)
-#              role.permissions = roles[r][0]
-#              role.default = roles[r][1]
-#              db.session.add(role)
-#          db.session.commit()
-#
-#      def __repr__(self):
-#          return '<Role %r>' % self.name
+class Role(db.Model):
+    __tablename__ = 'roles'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), unique=True)
+    # permissions的值是一个整数，表示位标识，各操作都表示一个位标识。
+    permissions = db.Column(db.Integer)
+    default = db.Column(db.Boolean,default=False,index=True)
+    users = db.relationship('User', backref='role', lazy='dynamic')
 
-# class Permission:
-#     '''
-#     对于flasky来说，不同操作代表着不同的权限，这个权限就由Role模型中的permissions字段代表
-#     操作的权限共使用8位来表示，每一位被设置为1都代表可以执行某项操作
-#     关注用户：0b00000001 (0x01)
-#     发表评论：0b00000010 (0x02)
-#     写文章： 0b00000100 (0x04)
-#     管理他人评论： 0b00001000 (0x08)
-#     管理员权限： 0b10000000 (0x80)
-#     比如一个可以关注别人，发表评论的用户，其权限代码为：0b00000011
-#     '''
-#     FOLLOW = 0x01
-#     COMMENT = 0x02
-#     WRITE_ARTICLES = 0x04
-#     MODERATE_COMMENTS = 0x08
-#     ADMINISTER = 0x80
+    @staticmethod
+    def insert_roles():
+        """
+        通过权限组合，创建有不同权限的角色
+        匿名：只能浏览。所以不用在数据库设置这个角色。
+        User:正常权限，可评论，发文章，关注别人。一般用户默认是User
+        Moderator：协管员，可评论，发文章，关注别人，管理他人评论。
+        Administrator：管理员，拥有最高权限。
+        :return:
+        """
+        roles = {
+             'User' : (Permission.FOLLOW|
+                       Permission.COMMENT|
+                       Permission.WRITE_ARTICLES,True),
+             'Moderator' : (Permission.FOLLOW|
+                            Permission.COMMENT|
+                            Permission.WRITE_ARTICLES|
+                            Permission.MODERATE_COMMENTS,False),
+             'Administrator' : (0xff,False)
+         }
+        for r in roles:
+            role = Role.query.filter_by(name=r).first()
+            if role is None:
+             role = Role(name=r)
+            role.permissions = roles[r][0]
+            role.default = roles[r][1]
+            db.session.add(role)
+            db.session.commit()
+
+    def __repr__(self):
+     return '<Role %r>' % self.name
+
+class Permission:
+    '''
+    对于flasky来说，不同操作代表着不同的权限，这个权限就由Role模型中的permissions字段代表
+    操作的权限共使用8位来表示，每一位被设置为1都代表可以执行某项操作
+    关注用户：0b00000001 (0x01)
+    发表评论：0b00000010 (0x02)
+    写文章： 0b00000100 (0x04)
+    管理他人评论： 0b00001000 (0x08)
+    管理员权限： 0b10000000 (0x80)
+    比如一个可以关注别人，发表评论的用户，其权限代码为：0b00000011
+    '''
+    FOLLOW = 0x01
+    COMMENT = 0x02
+    WRITE_ARTICLES = 0x04
+    MODERATE_COMMENTS = 0x08
+    ADMINISTER = 0x80
 
 class Follow(db.Model):
     __tablename__ = 'follows'
@@ -98,12 +98,7 @@ class User(db.Model,UserMixin):
     comments = db.relationship('Comment',backref='author',lazy='dynamic')
 
     def __init__(self,**kwargs):
-        super(User,self).__init__(**kwargs)
-        if self.role is None:
-            if self.email == 'qiuyue9971@126.com':
-                self.role = Role.query.filter_by(permissions=0xff).first()
-            else:
-                self.role = Role.query.filter_by(default=True).first()
+        super().__init__(**kwargs)
         if self.email is not None and self.avatar_hash is None:
             self.avatar_hash = hashlib.md5(self.email.encode('utf-8')).hexdigest()
 
