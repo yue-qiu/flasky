@@ -1,0 +1,21 @@
+test_app_exists (test_basic.BaseicsTestCase)
+测试是否成功生成app ... skipped '跳过测试生成app'
+test_app_is_testing (test_basic.BaseicsTestCase)
+测试是否处于测试环境 ... ok
+test_comment (test_client.FlaskClientTestCase)
+测试comment ... ok
+test_home_page (test_client.FlaskClientTestCase)
+测试访问首页 ... ok
+test_logout (test_client.FlaskClientTestCase)
+测试退出登录 ... ok
+test_post (test_client.FlaskClientTestCase)
+测试发表博客 ... ok
+test_register_and_login (test_client.FlaskClientTestCase)
+测试注册和登录 ... ok
+test_todo (test_client.FlaskClientTestCase)
+测试todoList ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 26.176s
+
+OK (skipped=1)

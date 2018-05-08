@@ -1,7 +1,8 @@
 import re
 import unittest
-from app import creat_app, db
+from app.models import Post
 from flask import url_for
+from app import creat_app, db
 
 class FlaskClientTestCase(unittest.TestCase):
     def setUp(self):
@@ -17,11 +18,13 @@ class FlaskClientTestCase(unittest.TestCase):
         self.app_context.pop()
 
     def test_home_page(self):
+        """测试访问首页"""
         response = self.client.get('url_for(\'main.index\')')
         self.assertTrue('登录' in response.get_data(as_text=True))
 
     def test_register_and_login(self):
-        response = self.client.post(url_for('auth.register'),data={
+        """测试注册和登录"""
+        response = self.client.post(url_for('auth.register'), data={
             'email': 'qiuyue@cug.edu.cn',
             'username': '我爱吃苦瓜',
             'password': 'A19990701',
@@ -30,14 +33,52 @@ class FlaskClientTestCase(unittest.TestCase):
         self.assertTrue(response.status_code == 302)
 
         # 使用新账号登录登录
-        response = self.client.post(url_for('auth.login'),data={
+        response = self.client.post(url_for('auth.login'), data={
             'email': 'qiuyue@cug.edu.cn',
             'password': 'A19990701',
         }, follow_redirects=True)
         data = response.get_data(as_text=True)
         self.assertTrue(re.search(r'我的信息', data))
 
-        # 退出
+    def test_post(self):
+        """测试发表博客"""
+        self.test_register_and_login()
+        response = self.client.post(url_for('main.index'),data={
+            'body': '测试发表博客',
+            'submit': '提交',
+        }, follow_redirects=True)
+        data = response.get_data(as_text=True)
+        self.assertRegex(data,r'测试发表博客')
+
+    def test_logout(self):
+        """测试退出登录"""
+        self.test_register_and_login()
         response = self.client.get(url_for('auth.logout'), follow_redirects=True)
         data = response.get_data(as_text=True)
         self.assertTrue('您已成功退出登录' in data)
+
+    def test_todo(self):
+        """测试todoList"""
+        self.test_register_and_login()
+        response = self.client.post(url_for('main.to_do_list', username='我爱吃苦瓜'), data={
+            'text': '测试todoList',
+            'complete': 'False',
+            'submit': '提交',
+        }, follow_redirects=True)
+        data = response.get_data(as_text=True)
+        self.assertRegex(data, r'测试todoList')
+
+    def test_comment(self):
+        """测试comment"""
+        self.test_register_and_login()
+        response = self.client.post(url_for('main.index'), data={
+            'body': '测试发表博客',
+            'submit': '提交',
+        }, follow_redirects=True)
+        post = Post.query.filter_by(body='测试发表博客').first()
+        response = self.client.post(url_for('main.post', id=post.id), data={
+            'body': '测试comment',
+            'submit': '提交',
+        }, follow_redirects=True)
+        data = response.get_data(as_text=True)
+        self.assertRegex(data, r'测试comment')
