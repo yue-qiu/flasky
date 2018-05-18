@@ -32,7 +32,11 @@ def creat_app(config_name):
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
 
+    # 前闭后开的url形式
     from .auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint,url_prefix='/auth')
+
+    from .api_1_0 import api
+    app.register_blueprint(api, url_prefix='/api/v1.0')
 
     return app

@@ -167,40 +167,40 @@ def edit_profile():
     form.name.data = current_user.name
     form.location.data = current_user.location
     form.about_me.data = current_user.about_me
-    return render_template('edit_profile.html',form=form)
+    return render_template('edit_profile.html', form=form)
 
 @main.route('/all/')
 @login_required
 def show_all():
     resp = make_response(redirect(url_for('main.index')))
-    resp.set_cookie('show_followed','',max_age=30*24*60*60)
+    resp.set_cookie('show_followed', '', max_age=30*24*60*60)
     return resp
 
 @main.route('/followed/')
 @login_required
 def show_followed():
     resp = make_response(redirect(url_for('main.index')))
-    resp.set_cookie('show_followed','1',max_age=30*24*60*60)
+    resp.set_cookie('show_followed', '1', max_age=30*24*60*60)
     return resp
 
-@main.route('/delete/<int:post_id>/comments/<int:comment_id>/',methods=['GET','POST'])
+@main.route('/delete/<int:post_id>/comments/<int:comment_id>/', methods=['GET','POST'])
 @login_required
 def deletecomments(post_id,comment_id):
     comment = Comment.query.get_or_404(comment_id)
     db.session.delete(comment)
     db.session.commit()
-    return redirect(url_for('main.post',id=post_id))
+    return redirect(url_for('main.post', id=post_id))
 
 @main.route('/map/')
 @login_required
 def walkroute():
-    return render_template('map.html',begin=request.args.get('begin'),end=request.args.get('end'),way=request.args.get('way'))
+    return render_template('map.html', begin=request.args.get('begin'), end=request.args.get('end'), way=request.args.get('way'))
 
-@main.route('/travel/',methods=['GET','POST'])
+@main.route('/travel/', methods=['GET','POST'])
 @login_required
 def travel():
     form = TravelForm()
     if form.validate_on_submit():
-        return redirect(url_for('main.walkroute',begin=form.begin.data,end=form.end.data,way=form.way.data))
-    return render_template('route.html',form=form)
+        return redirect(url_for('main.walkroute', begin=form.begin.data, end=form.end.data, way=form.way.data))
+    return render_template('route.html', form=form)
 
