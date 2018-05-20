@@ -14,7 +14,7 @@ login_manager = LoginManager()
 pagedown = PageDown()
 # 设置登录页面的端点
 login_manager.login_view = 'auth.login'
-photos = UploadSet('photos',IMAGES)
+photos = UploadSet('photos', IMAGES)
 
 def creat_app(config_name):
     app = Flask(__name__)
@@ -34,7 +34,7 @@ def creat_app(config_name):
 
     # 前闭后开的url形式
     from .auth import auth as auth_blueprint
-    app.register_blueprint(auth_blueprint,url_prefix='/auth')
+    app.register_blueprint(auth_blueprint, url_prefix='/auth')
 
     from .api_1_0 import api
     app.register_blueprint(api, url_prefix='/api/v1.0')

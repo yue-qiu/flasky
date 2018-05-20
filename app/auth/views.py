@@ -17,10 +17,10 @@ def login():
         user = User.query.filter_by(email=form.email.data).first()
         if user is not None and user.varify_password(form.password.data):
             # login_user()将用户设为登录状态
-            login_user(user,form.remember.data)
+            login_user(user, form.remember.data)
             return redirect(url_for('main.index'))
         flash('用户名或密码错误！')
-    return render_template('auth/login.html',form=form)
+    return render_template('auth/login.html', form=form)
 
 @auth.route('/logout/')
 @login_required
@@ -51,20 +51,20 @@ def changepw():
         url = 'http://127.0.0.1:5000/auth/setpw/' + str(token)
         session['token'] = token
         session['email'] = form.email.data
-        msg = MIMEText('请点击这个这个链接完成验证%s' % url,'plain','utf-8')
+        msg = MIMEText('请点击这个这个链接完成验证%s' % url, 'plain', 'utf-8')
         msg['From'] = 'qiuyueqy@qq.com'
         msg['To'] = form.email.data
-        msg['Subject'] = Header('验证邮件','utf-8')
+        msg['Subject'] = Header('验证邮件', 'utf-8')
         smtp = SMTP()
-        smtp.connect(host='smtp.qq.com',port=587)
+        smtp.connect(host='smtp.qq.com', port=587)
         smtp.ehlo()
         smtp.starttls()
         smtp.ehlo()
-        smtp.login('qiuyueqy@qq.com','qogafagaslcfjige')
-        smtp.sendmail('qiuyueqy@qq.com',form.email.data,msg.as_string())
+        smtp.login('qiuyueqy@qq.com', 'qogafagaslcfjige')
+        smtp.sendmail('qiuyueqy@qq.com', form.email.data,msg.as_string())
         flash('确认邮件已发送，请在确认邮件中完成验证')
-        return redirect(url_for('auth.setpw',token=token))
-    return render_template('auth/reset_password.html',form=form)
+        return redirect(url_for('auth.setpw', token=token))
+    return render_template('auth/reset_password.html', form=form)
 
 @auth.route('/setpw/<token>/',methods=['GET','POST'])
 def setpw(token):
@@ -78,7 +78,7 @@ def setpw(token):
                 del session['token']
                 del session['email']
                 return redirect( url_for('main.index') )
-            return render_template('auth/reset_password.html',form=form)
+            return render_template('auth/reset_password.html', form=form)
         else:
             abort(404)
     except:

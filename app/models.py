@@ -1,5 +1,5 @@
 from . import db
-from werkzeug.security import generate_password_hash,check_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from . import login_manager
 from datetime import datetime
@@ -83,20 +83,20 @@ class User(db.Model,UserMixin):
     username = db.Column(db.String(64), unique=True, index=True)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     password_hash = db.Column(db.String(128))
-    email = db.Column(db.String(64),unique=True,index=True)
+    email = db.Column(db.String(64),unique=True, index=True)
     name = db.Column(db.String(64))
     about_me = db.Column(db.Text())
     location = db.Column(db.String(128))
-    member_since = db.Column(db.DateTime (),default=datetime.utcnow)
-    last_seen = db.Column(db.DateTime(),default=datetime.utcnow)
+    member_since = db.Column(db.DateTime (), default=datetime.utcnow)
+    last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
     avatar_hash = db.Column(db.String(64))
-    todo = db.relationship('To_Do',backref='author',lazy='dynamic')
-    posts = db.relationship('Post',backref='author',lazy='dynamic')
-    followed = db.relationship('Follow',foreign_keys=[Follow.follower_id],backref=db.backref('follower',lazy='joined'),
-                               lazy='dynamic',cascade='all,delete-orphan')
-    follower = db.relationship('Follow',foreign_keys=[Follow.followed_id],backref=db.backref('followed',lazy='joined'),
-                               lazy='dynamic',cascade='all,delete-orphan')
-    comments = db.relationship('Comment',backref='author',lazy='dynamic')
+    todo = db.relationship('To_Do',backref='author', lazy='dynamic')
+    posts = db.relationship('Post',backref='author', lazy='dynamic')
+    followed = db.relationship('Follow', foreign_keys=[Follow.follower_id], backref=db.backref('follower', lazy='joined'),
+                               lazy='dynamic', cascade='all,delete-orphan')
+    follower = db.relationship('Follow', foreign_keys=[Follow.followed_id], backref=db.backref('followed', lazy='joined'),
+                               lazy='dynamic', cascade='all,delete-orphan')
+    comments = db.relationship('Comment', backref='author', lazy='dynamic')
 
     def __init__(self,**kwargs):
         super().__init__(**kwargs)
@@ -108,16 +108,16 @@ class User(db.Model,UserMixin):
         raise ValueError('密码不可读！')
 
     @password.setter
-    def password(self,password):
+    def password(self, password):
         self.password_hash = generate_password_hash(password)
 
-    def varify_password(self,password):
-        return check_password_hash(self.password_hash,password)
+    def varify_password(self, password):
+        return check_password_hash(self.password_hash, password)
 
-    def reset_password(self,password):
+    def reset_password(self, password):
         self.password_hash = generate_password_hash(password)
 
-    def follow(self,user):
+    def follow(self, user):
         if not self.is_following(user):
             f = Follow(follower=self,followed=user)
             db.session.add(f)
@@ -170,7 +170,7 @@ class User(db.Model,UserMixin):
 
     @property
     def followed_posts(self):
-        return Post.query.join(Follow,Follow.followed_id==Post.author_id).filter(Follow.follower_id==self.id)
+        return Post.query.join(Follow, Follow.followed_id==Post.author_id).filter(Follow.follower_id==self.id)
 
     # expires_in参数指定token失效时间，以s为单位
     def generate_token(self, expiration):
@@ -196,7 +196,8 @@ class User(db.Model,UserMixin):
             'posts_count': self.posts.count(),
             'member_since': self.member_since,
             'last_seen': self.last_seen,
-            'todo': url_for('api.get_user_todos', id=self.id, _external=True),
+            'username': self.username,
+            #'todos': url_for('api.get_user_todos', id=self.id, _external=True),
         }
         return json_user
 
@@ -223,7 +224,7 @@ class Post(db.Model):
 
     @staticmethod
     def from_json(json_post):
-        body = json_post.get['body']
+        body = json_post.get('body')
         if body is None or body == '':
             raise ValueError('缺少body字段')
         return Post(body=body)

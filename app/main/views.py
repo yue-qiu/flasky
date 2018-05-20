@@ -28,7 +28,7 @@ def index():
         page, error_out=False, per_page=10
     )
     posts = pagination.items
-    return render_template('index.html', form=form, posts=posts,pagination=pagination,show_followed=show_followed)
+    return render_template('index.html', form=form, posts=posts, pagination=pagination, show_followed=show_followed)
 
 @main.route('/user/<username>/')
 def user(username):

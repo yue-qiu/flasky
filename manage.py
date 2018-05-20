@@ -1,7 +1,5 @@
 import os
-from tests.test_client import FlaskClientTestCase
 from app import creat_app, db
-from app.models import User
 from flask_script import Manager, Shell
 from flask_migrate import Migrate, MigrateCommand
 
@@ -12,7 +10,7 @@ migrate = Migrate(app, db)
 
 @app.shell_context_processor
 def make_shell_context():
-    return dict(app=app,db=db,User=User)
+    return dict(app=app, db=db)
 
 @manager.command
 def test():
