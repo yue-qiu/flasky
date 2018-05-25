@@ -10,7 +10,7 @@ from hashlib import md5
 from email.mime.text import MIMEText
 from email.header import Header
 
-@auth.route('/login/',methods=['GET','POST'])
+@auth.route('/login',methods=['GET','POST'])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
@@ -22,7 +22,7 @@ def login():
         flash('用户名或密码错误！')
     return render_template('auth/login.html', form=form)
 
-@auth.route('/logout/')
+@auth.route('/logout')
 @login_required
 def logout():
     # logout_user()将用户设置为登出状态
@@ -30,7 +30,7 @@ def logout():
     flash('您已成功退出登录')
     return redirect(url_for('main.index'))
 
-@auth.route('/register/', methods=['GET', 'POST'])
+@auth.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
@@ -43,7 +43,7 @@ def register():
         return redirect(url_for('auth.login'))
     return render_template('auth/register.html', form=form)
 
-@auth.route('/changepw/',methods=['GET','POST'])
+@auth.route('/changepw',methods=['GET','POST'])
 def changepw():
     form = ResetPwForm()
     if form.validate_on_submit():
@@ -66,7 +66,7 @@ def changepw():
         return redirect(url_for('auth.setpw', token=token))
     return render_template('auth/reset_password.html', form=form)
 
-@auth.route('/setpw/<token>/',methods=['GET','POST'])
+@auth.route('/setpw/<token>',methods=['GET','POST'])
 def setpw(token):
     form = SetPwForm()
     try:

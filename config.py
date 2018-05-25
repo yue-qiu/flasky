@@ -24,6 +24,7 @@ class TestConfig(Config):
     TESTING = True
     WTF_CSRF_ENABLED = False
     SQLALCHEMY_DATABASE_URI = 'mysql://root:A19990701@localhost:3306/flask_test'
+    SERVER_NAME = '127.0.0.1:5000'
 
 
 config = {

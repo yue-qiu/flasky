@@ -1,4 +1,4 @@
-import re
+import os
 import unittest
 from app.models import Post
 from flask import url_for
@@ -19,36 +19,36 @@ class FlaskClientTestCase(unittest.TestCase):
 
     def test_home_page(self):
         """测试访问首页"""
-        response = self.client.get('url_for(\'main.index\')')
+        response = self.client.get(url_for('main.index'))
         self.assertTrue('登录' in response.get_data(as_text=True))
 
     def test_register_and_login(self):
         """测试注册和登录"""
         response = self.client.post(url_for('auth.register'), data={
-            'email': 'qiuyue@cug.edu.cn',
-            'username': '我爱吃苦瓜',
+            'email': os.getenv('FLASK_EMAIL'),
+            'username': 'test',
             'password': 'A19990701',
             'password2': 'A19990701',
         })
-        self.assertTrue(response.status_code == 302)
+        self.assertEqual(302, response.status_code)
 
         # 使用新账号登录登录
         response = self.client.post(url_for('auth.login'), data={
-            'email': 'qiuyue@cug.edu.cn',
+            'email': os.getenv('FLASK_EMAIL'),
             'password': 'A19990701',
         }, follow_redirects=True)
         data = response.get_data(as_text=True)
-        self.assertTrue(re.search(r'我的信息', data))
+        self.assertRegex(data, r'我的信息')
 
     def test_post(self):
         """测试发表博客"""
         self.test_register_and_login()
-        response = self.client.post(url_for('main.index'),data={
+        response = self.client.post(url_for('main.index'), data={
             'body': '测试发表博客',
             'submit': '提交',
         }, follow_redirects=True)
         data = response.get_data(as_text=True)
-        self.assertRegex(data,r'测试发表博客')
+        self.assertRegex(data, r'测试发表博客')
 
     def test_logout(self):
         """测试退出登录"""
